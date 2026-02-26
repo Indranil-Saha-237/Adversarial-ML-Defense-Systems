@@ -1,0 +1,34 @@
+node_modules/
+.env
+*.log
+# Node.js
+loginpage/node_modules/
+loginpage/.env
+
+#Python
+ml/venv/
+ml/__pycache__/
+ml/data/archive/
+ml/mlruns
+ml/data/*npy
+ml/data/*csv
+ml/mlflow.db
+
+#IDEs and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+#Ignore large binary files
+*.mp4
+*.pdf
+*.docx
+*.xlsx
+*.png
+*.jpg
+*.jpeg
+*.pptx
+Personal/
+Gemini.md
+
