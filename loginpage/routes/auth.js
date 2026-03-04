@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const User = require('../models/User');
+const axios = require('axios');
 
 // ──── Middleware ────
 function ensureGuest(req, res, next) {
@@ -25,8 +26,26 @@ router.get('/signup', ensureGuest, (req, res) => {
   res.render('signup', { error: req.flash('error') });
 });
 
-router.get('/dashboard', ensureAuth, (req, res) => {
-  res.render('dashboard', { user: req.user });
+router.get('/dashboard', ensureAuth, async (req, res) => {
+  try {
+    const response = await axios.get('http://127.0.0.1:5001/model/metadata');
+    const mlData = response.data;
+
+    //Reder Dashboard with ML metadata and User Data
+    return res.render('dashboard', { user: req.user, ml: mlData });
+    
+  }
+    catch (error) {
+    console.error("ML API Error:", error.message);
+    }
+
+
+    return res.render('dashboard', { user: req.user, ml: {
+      modelName: "SYSTEM OFFLINE",
+      accuracy: 0,
+      features_count: 0,
+      status : "OFFLINE"
+    } });
 });
 
 // ──── Local Auth ────

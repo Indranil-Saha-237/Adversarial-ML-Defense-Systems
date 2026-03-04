@@ -7,6 +7,7 @@ const flash = require('express-flash');
 const passport = require('./config/passport');
 const authRoutes = require('./routes/auth');
 
+const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 

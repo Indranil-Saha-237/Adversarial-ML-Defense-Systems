@@ -5,23 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Command Center | ADVDEF</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* 1. SCROLL SETUP */
+    :root {
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --purple: #a855f7;
+      --red: #ef4444;
+    }
+
     html { scroll-behavior: smooth; }
     body {
       background-color: #020202;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
       color: #ffffff;
       margin: 0;
-      overflow: hidden; /* Scroll handled by snap-container */
+      overflow: hidden;
     }
 
+    /* ── VERTICAL SNAP ── */
     .snap-container {
       height: 100vh;
       overflow-y: scroll;
-      snap-type: y mandatory;
+      scroll-snap-type: y mandatory;
       scrollbar-width: none;
     }
     .snap-container::-webkit-scrollbar { display: none; }
@@ -29,7 +36,7 @@
     .snap-section {
       height: 100vh;
       width: 100%;
-      snap-align: start;
+      scroll-snap-align: start;
       position: relative;
       display: flex;
       align-items: center;
@@ -37,255 +44,451 @@
       padding: 0 10%;
     }
 
-    /* 2. HORIZONTAL SCROLLER */
+    /* ── HORIZONTAL SNAP ── */
     .horizontal-hub {
       display: flex;
       overflow-x: scroll;
-      snap-type: x mandatory;
+      scroll-snap-type: x mandatory;
       width: 100vw;
       height: 100%;
       scrollbar-width: none;
+      align-items: center;
     }
     .horizontal-hub::-webkit-scrollbar { display: none; }
+
     .horizontal-slide {
       flex: 0 0 100vw;
       height: 100%;
-      snap-align: center;
+      scroll-snap-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0 10%;
     }
 
-    /* 3. VISUALS */
+    /* ── GLOW BEAM ── */
     .top-beam {
-      position: fixed;
-      top: -10%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      height: 50%;
-      background: radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 1;
+      position: fixed; top: -10%; left: 50%; transform: translateX(-50%);
+      width: 80%; height: 50%;
+      background: radial-gradient(circle at 50% 0%, rgba(34,197,94,0.08) 0%, transparent 70%);
+      pointer-events: none; z-index: 1;
+    }
+    .beam-blue {
+      position: absolute; inset: 0; pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse at 65% 50%, rgba(59,130,246,0.07) 0%, transparent 60%);
+    }
+    .beam-purple {
+      position: absolute; inset: 0; pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse at 35% 50%, rgba(168,85,247,0.07) 0%, transparent 60%);
     }
 
+    /* ── TYPOGRAPHY ── */
     .hero-text {
       font-size: clamp(4rem, 8vw, 7rem);
-      line-height: 0.9;
-      letter-spacing: -0.06em;
-      font-weight: 900;
+      line-height: 0.9; letter-spacing: -0.06em; font-weight: 700;
     }
-
-    .glass-card {
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(30px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 40px;
-      width: 100%;
-      max-width: 900px;
-      min-height: 500px;
-    }
-
     .tech-label {
       font-family: 'JetBrains Mono', monospace;
-      text-transform: uppercase;
-      font-size: 0.65rem;
-      color: #22c55e;
-      letter-spacing: 0.2em;
+      text-transform: uppercase; font-size: 0.65rem;
+      color: var(--green); letter-spacing: 0.2em;
     }
 
+    /* ── CARDS ── */
+    .glass-card {
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(30px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 32px; width: 100%; max-width: 860px; min-height: 480px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .glass-card.green  { border-color: rgba(34,197,94,0.3);  box-shadow: 0 0 60px rgba(34,197,94,0.06); }
+    .glass-card.white  { border-color: rgba(255,255,255,0.08); }
+
+    /* ── LOGOUT PILL ── */
     .logout-bubble {
-      background: #0a0a0a;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 9999px;
-      padding: 4px 4px 4px 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
+      background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 9999px; padding: 4px 4px 4px 20px;
+      display: flex; align-items: center; gap: 16px;
+      font-size: 0.75rem; font-weight: 600; transition: all 0.3s ease;
+      cursor: pointer; text-decoration: none; color: white;
     }
-    
-    .logout-bubble:hover {
-      border-color: #ef4444;
-      background: rgba(239, 68, 68, 0.1);
-    }
-
+    .logout-bubble:hover { border-color: var(--red); background: rgba(239,68,68,0.08); }
     .logout-circle {
-      width: 32px;
-      height: 32px;
-      background: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: black;
-      transition: 0.3s;
+      width: 32px; height: 32px; background: white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: black; transition: 0.3s; flex-shrink: 0;
     }
+    .logout-bubble:hover .logout-circle { background: var(--red); color: white; }
 
-    .logout-bubble:hover .logout-circle {
-      background: #ef4444;
-      color: white;
-    }
-
-    @keyframes growV { 
-      0% { height: 0; opacity: 0; } 
-      50% { height: 48px; opacity: 1; } 
-      100% { height: 48px; opacity: 0; } 
+    /* ── SCROLL INDICATOR ── */
+    @keyframes growV {
+      0%   { height: 0; opacity: 0; }
+      50%  { height: 48px; opacity: 1; }
+      100% { height: 48px; opacity: 0; }
     }
     .animate-grow-v { animation: growV 2s infinite ease-in-out; }
+
+    /* ── ACTION BUTTONS ── */
+    .action-btn {
+      width: 100%; padding: 20px 24px; border-radius: 16px;
+      font-weight: 700; font-size: 0.75rem; letter-spacing: 0.15em;
+      text-transform: uppercase; transition: all 0.25s ease; cursor: pointer;
+    }
+    .action-btn.primary  { background: white; color: black; border: none; }
+    .action-btn.primary:hover { background: var(--green); color: white; }
+    .action-btn.secondary { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.1); }
+    .action-btn.secondary:hover { border-color: rgba(34,197,94,0.5); }
+    .action-btn.danger { background: transparent; color: var(--red); border: 1px solid rgba(255,255,255,0.08); }
+    .action-btn.danger:hover { border-color: rgba(239,68,68,0.5); }
+
+    /* ── DATA GRID ── */
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px 60px; }
+    .data-field-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.35; margin-bottom: 6px;
+    }
+    .data-field-value { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; }
+
+    /* ── CARD FOOTER NAV ── */
+    .card-footer-nav {
+      display: flex; justify-content: flex-end; align-items: center; gap: 12px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.5;
+    }
+
+    /* ── ML TELEMETRY SPLIT LAYOUT ── */
+    .split-layout {
+      display: grid; width: 100%; max-width: 1100px; min-height: 520px;
+      position: relative; z-index: 1;
+    }
+    .split-layout.cols-half  { grid-template-columns: 1fr 1fr; }
+    .split-layout.cols-third { grid-template-columns: 280px 1fr; }
+
+    .split-left {
+      padding: 64px 52px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      border-radius: 32px 0 0 32px;
+    }
+    .split-left.blue   { background: rgba(59,130,246,0.04);  border: 1px solid rgba(59,130,246,0.25);  border-right: none; }
+    .split-left.purple { background: rgba(168,85,247,0.04); border: 1px solid rgba(168,85,247,0.25); border-right: none; }
+
+    .split-right {
+      padding: 52px 56px;
+      display: flex; flex-direction: column; justify-content: center;
+      border-radius: 0 32px 32px 0;
+    }
+    .split-right.blue   { background: rgba(255,255,255,0.01); border: 1px solid rgba(59,130,246,0.15); }
+    .split-right.purple { background: rgba(255,255,255,0.01); border: 1px solid rgba(168,85,247,0.15); }
+
+    /* stat pill */
+    .stat-pill {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px; padding: 20px 24px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+
+    /* scroll down hint */
+    .scroll-hint {
+      position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.2;
+    }
+    .scroll-hint span {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
   <div class="top-beam"></div>
 
-  <header class="fixed top-12 left-12 right-12 z-50 flex justify-between items-center pointer-events-none">
+  <!-- ── HEADER ── -->
+  <header class="fixed top-10 left-10 right-10 z-50 flex justify-between items-center pointer-events-none">
     <div class="flex items-center gap-3 pointer-events-auto">
-      <svg class="w-8 h-8 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <svg class="w-7 h-7 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
       </svg>
-      <span class="font-black text-2xl tracking-tighter">ADV<span class="text-green-500">DEF</span></span>
+      <span style="font-weight:700;font-size:1.25rem;letter-spacing:-0.04em;">ADV<span class="text-green-500">DEF</span></span>
     </div>
-
-    <a href="/logout" class="pointer-events-auto">
-      <div class="logout-bubble">
-        <span>TERMINATE</span>
-        <div class="logout-circle">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
-        </div>
+    <a href="/logout" class="logout-bubble pointer-events-auto">
+      <span>Terminate</span>
+      <div class="logout-circle">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
       </div>
     </a>
   </header>
 
   <div class="snap-container">
 
+    <!-- ══════════════════════════════════════
+         SECTION 1 · HERO
+    ══════════════════════════════════════ -->
     <section class="snap-section">
       <div class="max-w-5xl w-full">
         <div class="tech-label mb-8 flex items-center gap-3">
-          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span>[ SESSION INITIALIZED ]</span>
+          <div class="w-2 h-2 bg-green-500 rounded-full" style="animation:pulse 2s infinite;"></div>
+          <span>[ Session Initialized ]</span>
         </div>
-        <h1 class="hero-text mb-12">
+        <h1 class="hero-text mb-10">
           System<br>
-          <span class="opacity-40">Command Centre</span>
+          <span style="opacity:0.3;">Command Centre</span>
         </h1>
-        <p class="text-gray-400 text-2xl font-light max-w-2xl leading-relaxed">
-          Welcome back, <span class="text-white font-semibold"><%= user.name %></span>. All defense nodes are online. Scroll to access system metadata and operative nodes.
+        <p style="color:#6b7280;font-size:1.25rem;font-weight:300;max-width:560px;line-height:1.7;">
+          Welcome back, <span style="color:white;font-weight:600;"><%= user.name %></span>.
+          All defense nodes are online. Scroll to access system metadata and operative nodes.
         </p>
-
-        <div class="mt-20 flex flex-col items-center w-fit gap-4 opacity-30">
-          <span class="tech-label text-[10px]">Scroll Down</span>
-          <div class="w-[1px] h-12 bg-white animate-grow-v"></div>
+        <div class="mt-20 flex flex-col items-center w-fit gap-3" style="opacity:0.25;">
+          <span class="tech-label" style="font-size:0.55rem;">Scroll Down</span>
+          <div style="width:1px;background:white;" class="animate-grow-v"></div>
         </div>
       </div>
     </section>
 
-    <section class="snap-section !p-0">
+    <!-- ══════════════════════════════════════
+         SECTION 2 · HORIZONTAL HUB
+         01 Account Metadata · 02 Identity Node · 03 Integrity Actions
+    ══════════════════════════════════════ -->
+    <section class="snap-section" style="padding:0;">
       <div class="horizontal-hub">
 
-
+        <!-- CARD 01 · ACCOUNT METADATA -->
         <div class="horizontal-slide">
-          <div class="glass-card p-16 flex flex-col justify-between border-green-500/40 shadow-[0_0_50px_rgba(34,197,94,0.1)]">
+          <div class="glass-card green" style="padding:56px;">
             <div>
-              <div class="tech-label mb-12">[ 01. ACCOUNT METADATA ]</div>
-              <h2 class="text-6xl font-black tracking-tighter mb-16">Profile <span class="opacity-30">Telemetry</span></h2>
-
-              <div class="grid grid-cols-2 gap-y-12 gap-x-20">
+              <div class="tech-label mb-10">[ 01 — Account Metadata ]</div>
+              <h2 style="font-size:3.5rem;font-weight:700;letter-spacing:-0.05em;margin-bottom:48px;">
+                Profile <span style="opacity:0.25;">Telemetry</span>
+              </h2>
+              <div class="data-grid">
                 <div>
-                  <div class="tech-label text-[10px] opacity-40 mb-2">Operative ID</div>
-                  <div class="text-2xl font-medium"><%= user._id.toString().slice(-8).toUpperCase() %></div>
+                  <div class="data-field-label">Operative ID</div>
+                  <div class="data-field-value"><%= user._id.toString().slice(-8).toUpperCase() %></div>
                 </div>
                 <div>
-                  <div class="tech-label text-[10px] opacity-40 mb-2">Auth Level</div>
-                  <div class="text-2xl font-medium">Standard Operative</div>
+                  <div class="data-field-label">Auth Level</div>
+                  <div class="data-field-value">Standard Operative</div>
                 </div>
                 <div>
-                  <div class="tech-label text-[10px] opacity-40 mb-2">Registry Date</div>
-                  <div class="text-2xl font-medium"><%= new Date(user.createdAt).toLocaleDateString() %></div>
+                  <div class="data-field-label">Registry Date</div>
+                  <div class="data-field-value"><%= new Date(user.createdAt).toLocaleDateString() %></div>
                 </div>
                 <div>
-                  <div class="tech-label text-[10px] opacity-40 mb-2">Status</div>
-                  <div class="text-2xl font-medium text-green-500">SYSTEMS ACTIVE</div>
+                  <div class="data-field-label">Status</div>
+                  <div class="data-field-value" style="color:var(--green);">Active</div>
                 </div>
               </div>
             </div>
-
-            <div class="flex justify-end gap-4 items-center tech-label text-[10px]">
-              <span>Swipe Left for Identity Node</span>
-              <div class="w-10 h-[1px] bg-green-500"></div>
+            <div class="card-footer-nav">
+              <span>Swipe left for Identity Node</span>
+              <div style="width:36px;height:1px;background:var(--green);"></div>
             </div>
           </div>
         </div>
 
+        <!-- CARD 02 · IDENTITY NODE -->
         <div class="horizontal-slide">
-          <div class="glass-card p-16 flex flex-col justify-between border-green-500/20">
+          <div class="glass-card green" style="padding:56px;">
             <div>
-              <div class="tech-label mb-12">[ 02. IDENTITY NODE ]</div>
-              <div class="flex items-center gap-10 mb-16">
-                <div class="w-32 h-32 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-5xl font-black">
+              <div class="tech-label mb-10">[ 02 — Identity Node ]</div>
+              <div style="display:flex;flex-direction:row;align-items:center;gap:24px;margin-bottom:40px;flex-wrap:nowrap;">
+                <div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;flex-shrink:0;">
                   <%= user.name.charAt(0).toUpperCase() %>
                 </div>
-                <div>
-                  <h2 class="text-5xl font-black tracking-tighter mb-2"><%= user.name %></h2>
-                  <p class="text-gray-500 font-mono"><%= user.email %></p>
+                <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+                  <h2 style="font-size:2.25rem;font-weight:700;letter-spacing:-0.04em;margin:0;line-height:1.1;"><%= user.name %></h2>
+                  <p style="font-family:'JetBrains Mono',monospace;color:#6b7280;font-size:0.85rem;margin:0;"><%= user.email %></p>
                 </div>
               </div>
-
-              <div class="bg-white/5 rounded-3xl p-8 border border-white/5">
-                <div class="tech-label text-[10px] mb-4">Encryption Method</div>
-                <div class="text-xl font-mono opacity-80">
+              <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:28px;">
+                <div class="data-field-label" style="margin-bottom:10px;">Encryption Method</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;opacity:0.75;">
                   <%= user.googleId ? 'GOOGLE_OAUTH_v2_ENCRYPTED' : 'AES_256_SHA_HASHED' %>
                 </div>
               </div>
             </div>
-
-            <div class="flex justify-end gap-4 items-center tech-label text-[10px]">
-              <span>Swipe Left for Audit Logs</span>
-              <div class="w-10 h-[1px] bg-green-500"></div>
+            <div class="card-footer-nav">
+              <span>Swipe left for Integrity Actions</span>
+              <div style="width:36px;height:1px;background:var(--green);"></div>
             </div>
           </div>
         </div>
 
+        <!-- CARD 03 · INTEGRITY ACTIONS -->
         <div class="horizontal-slide">
-          <div class="glass-card p-16">
-            <div class="tech-label mb-12">[ 03. INTEGRITY ACTIONS ]</div>
-            <h2 class="text-6xl font-black tracking-tighter mb-16">Audit <span class="opacity-30">& Logs</span></h2>
-
-            <div class="space-y-4">
-              <button class="w-full bg-white text-black py-6 rounded-2xl font-bold uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all">
-                Export System Audit
-              </button>
-              <button class="w-full bg-transparent border border-white/10 py-6 rounded-2xl font-bold uppercase tracking-widest hover:border-green-500/50 transition-all">
-                Update Access Cipher
-              </button>
-              <button class="w-full bg-transparent border border-white/10 py-6 rounded-2xl font-bold uppercase tracking-widest hover:border-red-500/50 text-red-500 transition-all">
-                Revoke All Sessions
-              </button>
+          <div class="glass-card white" style="padding:56px;">
+            <div>
+              <div class="tech-label mb-10">[ 03 — Integrity Actions ]</div>
+              <h2 style="font-size:3.5rem;font-weight:700;letter-spacing:-0.05em;margin-bottom:40px;">
+                Audit <span style="opacity:0.25;">&amp; Logs</span>
+              </h2>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <button class="action-btn primary">Export System Audit</button>
+                <button class="action-btn secondary">Update Access Cipher</button>
+                <button class="action-btn danger">Revoke All Sessions</button>
+              </div>
+            </div>
+            <div class="card-footer-nav">
+              <span>Scroll down for ML Intelligence</span>
+              <div style="width:36px;height:1px;background:rgba(255,255,255,0.25);"></div>
             </div>
           </div>
         </div>
 
+      </div><!-- /horizontal-hub -->
+    </section>
+
+    <!-- ══════════════════════════════════════
+         SECTION 3 · ML TELEMETRY  (vertical)
+    ══════════════════════════════════════ -->
+    <section class="snap-section" style="position:relative;">
+      <div class="beam-blue"></div>
+
+      <div class="split-layout cols-half">
+        <!-- LEFT -->
+        <div class="split-left blue">
+          <div>
+            <div class="tech-label mb-6" style="color:var(--blue);">[ 04 — ML Telemetry ]</div>
+            <h2 style="font-size:3rem;font-weight:700;letter-spacing:-0.05em;line-height:1;margin:0;">
+              System<br><span style="opacity:0.25;">Intelligence</span>
+            </h2>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;opacity:0.4;">
+            <div style="width:6px;height:6px;background:var(--blue);border-radius:50%;box-shadow:0 0 8px var(--blue);"></div>
+            Engine Online
+          </div>
+        </div>
+        <!-- RIGHT -->
+        <div class="split-right blue" style="gap:16px;">
+          <div class="stat-pill">
+            <div class="data-field-label">Active Engine</div>
+            <div class="data-field-value"><%= ml.model_name %></div>
+          </div>
+          <div class="stat-pill">
+            <div class="data-field-label">Security Status</div>
+            <div class="data-field-value" style="color:var(--blue);"><%= ml.status %></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="stat-pill">
+              <div class="data-field-label">Clean Accuracy</div>
+              <div class="data-field-value" style="font-size:1.25rem;"><%= (ml.accuracy * 100).toFixed(2) %>%</div>
+            </div>
+            <div class="stat-pill">
+              <div class="data-field-label">Features</div>
+              <div class="data-field-value" style="font-size:1.25rem;"><%= ml.features_count %> Nodes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-hint">
+        <span>Scroll Down</span>
+        <div style="width:1px;background:white;" class="animate-grow-v"></div>
       </div>
     </section>
-  </div>
 
-  <footer class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50">
-    <div class="bg-[#0a0a0a]/80 border border-white/5 backdrop-blur-xl px-10 py-5 rounded-full flex items-center gap-12 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">
-      <div class="flex items-center gap-3 text-white">
-        <div class="w-1.5 h-1.5 bg-green-500 rounded-full shadow-[0_0_8px_#22c55e]"></div>
+    <!-- ══════════════════════════════════════
+         SECTION 4 · DEFENSE BENCHMARK  (vertical)
+    ══════════════════════════════════════ -->
+    <section class="snap-section" style="position:relative;">
+      <div class="beam-purple"></div>
+
+      <div class="split-layout cols-third">
+        <!-- LEFT -->
+        <div class="split-left purple">
+          <div>
+            <div class="tech-label mb-6" style="color:var(--purple);">[ 05 — Defense Benchmark ]</div>
+            <h2 style="font-size:2.5rem;font-weight:700;letter-spacing:-0.05em;line-height:1;margin:0;">
+              Attack<br><span style="opacity:0.25;">Resistance</span>
+            </h2>
+          </div>
+          <div>
+            <div class="data-field-label" style="margin-bottom:8px;">Defense Method</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:var(--purple);"><%= ml.defense_type %></div>
+          </div>
+        </div>
+        <!-- RIGHT: chart -->
+        <div class="split-right purple" style="justify-content:center;">
+          <div style="width:100%;height:320px;">
+            <canvas id="defenseChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /snap-container -->
+
+  <!-- ── FOOTER NAV ── -->
+  <footer class="fixed bottom-8 left-1/2 z-50" style="transform:translateX(-50%);">
+    <div style="background:rgba(10,10,10,0.85);border:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(20px);padding:16px 36px;border-radius:9999px;display:flex;align-items:center;gap:36px;">
+      <div style="display:flex;align-items:center;gap:10px;font-size:0.65rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:white;">
+        <div style="width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green);"></div>
         Overview
       </div>
-      <span class="hover:text-white cursor-pointer transition-colors">Nodes</span>
-      <span class="hover:text-white cursor-pointer transition-colors">Firewall</span>
-      <span class="hover:text-white cursor-pointer transition-colors">Integrity</span>
+      <span style="font-size:0.65rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#4b5563;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#4b5563'">Nodes</span>
+      <span style="font-size:0.65rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#4b5563;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#4b5563'">Firewall</span>
+      <span style="font-size:0.65rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#4b5563;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#4b5563'">Integrity</span>
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    async function initComparisonChart() {
+      try {
+        const res = await fetch('http://127.0.0.1:5001/model/comparison');
+        const data = await res.json();
+        const ctx = document.getElementById('defenseChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.labels,
+            datasets: [
+              {
+                label: 'Standard Baseline',
+                data: data.baseline.map(n => n * 100),
+                backgroundColor: 'rgba(239,68,68,0.25)',
+                borderColor: '#ef4444',
+                borderWidth: 2,
+                borderRadius: 6
+              },
+              {
+                label: 'Adversarial Defense',
+                data: data.defended.map(n => n * 100),
+                backgroundColor: 'rgba(168,85,247,0.3)',
+                borderColor: '#a855f7',
+                borderWidth: 2,
+                borderRadius: 6
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true, max: 100,
+                grid: { color: 'rgba(255,255,255,0.04)' },
+                ticks: { color: '#555', font: { family: 'JetBrains Mono', size: 11 } }
+              },
+              x: {
+                grid: { display: false },
+                ticks: { color: '#555', font: { family: 'JetBrains Mono', size: 11 } }
+              }
+            },
+            plugins: {
+              legend: {
+                labels: { color: '#aaa', font: { family: 'Space Grotesk', weight: '600', size: 12 } }
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.warn("Chart unavailable (backend offline):", err);
+      }
+    }
+    document.addEventListener('DOMContentLoaded', initComparisonChart);
+  </script>
 </body>
 </html>
