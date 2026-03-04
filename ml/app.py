@@ -1,7 +1,11 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
+import numpy as np
 import joblib
+import random
 import os
+from art.estimators.classification import SklearnClassifier
+from art.attacks.evasion import HopSkipJump
 
 app = Flask(__name__)
 CORS(app) #Allows Node.js(PORT 3000) to access the API
@@ -51,6 +55,46 @@ def get_comparison():
         "baseline": [0.9999, 0.10],
         "defended": [0.9999, 0.9260]
     })
+
+@app.route('/attack/simulate', methods=['POST'])
+def simulate_live_attack():
+    #1. Load a small slice of data (100 samples)
+    try: 
+        X_full = np.load("data/X_test.npy")
+        y_full = np.load("data/y_test.npy")
+
+        random_indices= random.sample(range(len(X_full)), 10)
+
+        X_test = X_full[random_indices]
+        y_test = y_full[random_indices]
+
+
+
+        #2. Load the models
+        baseline_model = joblib.load(BASELINE_PATH)
+        defended_model = joblib.load(DEFENDED_PATH)
+
+        #3. Wrap models with ART Attack
+        base_clf = SklearnClassifier(model=baseline_model)
+        attack = HopSkipJump(classifier=base_clf, max_iter=5, max_eval=100, init_eval=10, verbose=False)
+        X_adv = attack.generate(x=X_test)
+
+        #4. Evaluate both models on the SAME attack
+        from sklearn.metrics import accuracy_score
+        baseline_adv_acc = accuracy_score(y_test, baseline_model.predict(X_adv))
+        defended_adv_acc = accuracy_score(y_test, defended_model.predict(X_adv))
+
+        return jsonify({
+            "status": "success",
+            "samples_tested": 10,
+            "baseline_accuracy" : float(baseline_adv_acc),
+            "defended_accuracy" : float(defended_adv_acc)
+        })
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001, debug=True)

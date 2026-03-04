@@ -408,7 +408,16 @@
             <div class="data-field-label" style="margin-bottom:8px;">Defense Method</div>
             <div style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:var(--purple);"><%= ml.defense_type %></div>
           </div>
+          
+          <!--Live Attack Simulator-->
+          <div id="attack-status" class = "mt-8 p-4 rounded-xl border border-purple-500/20 bg-purple-500/5 hidden">
+            <div class="tech-label mb-2" style=" color:var(--purple);font-size:0.55rem;">[Live Breach Report]</div>
+            <div id="attack-result-text" class="text-xs font-mono opacity-80 leading-relaxed">Initializing...</div>
+            
+          </div>
+          <button id = "btn-trigger-attack" class="action-btn secondary mt-6" style="padding:14px 20px; font-size:0.65rem;border-color:var(--purple);color:var(--purple);">Launch FGSM Attack</button>
         </div>
+        
         <!-- RIGHT: chart -->
         <div class="split-right purple" style="justify-content:center;">
           <div style="width:100%;height:320px;">
@@ -488,7 +497,56 @@
         console.warn("Chart unavailable (backend offline):", err);
       }
     }
-    document.addEventListener('DOMContentLoaded', initComparisonChart);
+    //2. NEW: Attack Simulator Logic
+    function initAttackSimulator() {
+      const btn = document.getElementById('btn-trigger-attack');
+      const statusBox = document.getElementById('attack-status');
+      const resultText = document.getElementById('attack-result-text');
+
+      if (!btn) return; // Safety check
+
+      btn.addEventListener('click', async () => {
+        // UI Feedback: Loading state
+        btn.innerText = "ATTACKING...";
+        btn.style.opacity = "0.5";
+        btn.disabled = true;
+        statusBox.classList.remove('hidden');
+        resultText.innerText = "Generating adversarial perturbations (FGSM)...";
+
+        try {
+          const res = await fetch('http://127.0.0.1:5001/attack/simulate', { 
+            method: 'POST' 
+          });
+          const data = await res.json();
+
+          if (data.status === 'success') {
+            resultText.innerHTML = `
+              <span style="color:var(--red)">Baseline: ${(data.baseline_accuracy * 100).toFixed(1)}% Acc</span><br>
+              <span style="color:var(--purple)">Hardened: ${(data.defended_accuracy * 100).toFixed(1)}% Acc</span><br>
+              <div class="mt-2 pt-2 border-t border-white/5" style="font-size:0.55rem; opacity:0.6;">
+                RESULT: ${data.defended_accuracy > data.baseline_accuracy ? 'DEFENSE SUCCESSFUL' : 'SYSTEM BREACHED'}
+              </div>
+            `;
+          } else {
+            resultText.innerText = "Error: " + data.message;
+          }
+        } catch (err) {
+          resultText.innerText = "Error: ML Engine Offline";
+          console.error(err);
+        } finally {
+          // Reset button
+          btn.innerText = "Launch FGSM Attack";
+          btn.style.opacity = "1";
+          btn.disabled = false;
+        }
+      });
+    }
+
+    // 3. Start everything when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      initComparisonChart();
+      initAttackSimulator();
+    });
   </script>
 </body>
 </html>
