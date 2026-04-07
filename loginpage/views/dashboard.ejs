@@ -511,7 +511,7 @@
         btn.style.opacity = "0.5";
         btn.disabled = true;
         statusBox.classList.remove('hidden');
-        resultText.innerText = "Generating adversarial perturbations (FGSM)...";
+        resultText.innerText = "Generating adversarial perturbations (HSJ)...";
 
         try {
           const res = await fetch('http://127.0.0.1:5001/attack/simulate', { 
@@ -535,7 +535,7 @@
           console.error(err);
         } finally {
           // Reset button
-          btn.innerText = "Launch FGSM Attack";
+          btn.innerText = "Launch HSJ Attack";
           btn.style.opacity = "1";
           btn.disabled = false;
         }

@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const User = require('../models/User');
 const axios = require('axios');
+ const ML_URL = process.env.ML_API_URL || 'http://127.0.0.1:5001';
 
 // ──── Middleware ────
 function ensureGuest(req, res, next) {
@@ -28,8 +29,8 @@ router.get('/signup', ensureGuest, (req, res) => {
 
 router.get('/dashboard', ensureAuth, async (req, res) => {
   try {
-    const response = await axios.get('http://127.0.0.1:5001/model/metadata');
-    const mlData = response.data;
+    const mlRes = await axios.get(`${ML_URL}/model/metadata`);
+    const mlData = mlRes.data;
 
     //Reder Dashboard with ML metadata and User Data
     return res.render('dashboard', { user: req.user, ml: mlData });

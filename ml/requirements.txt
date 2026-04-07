@@ -1,0 +1,7 @@
+flask
+flask-cors
+joblib
+numpy
+scikit-learn
+adversarial-robustness-toolbox
+packaging
