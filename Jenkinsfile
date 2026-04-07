@@ -10,12 +10,10 @@ pipeline {
 
         stage('Setup Environment') {
             steps {
-                // 1. Fetch your .env file from Jenkins credentials
-                // Replace 'my-capstone-env' with the ID you create in Jenkins
+                // Securely copies the .env file from Jenkins credentials to your workspace
                 withCredentials([file(credentialsId: 'Capstone_env_file', variable: 'ENV_FILE')]) {
                     bat 'copy %ENV_FILE% .env' 
                 }
-                
                 bat 'cd loginpage && npm install'
             }
         }
@@ -29,8 +27,9 @@ pipeline {
 
         stage('Health Check') {
             steps {
-                // Wait for services to start
-                bat 'timeout /t 15 /nobreak' 
+                echo 'Waiting 15 seconds for services to stabilize...'
+                // FIXED: Uses PowerShell to sleep because 'timeout' is not supported in Jenkins
+                bat 'powershell -Command "Start-Sleep -Seconds 15"'
                 bat 'curl -f http://localhost:3000/health || exit 1'
             }
         }
@@ -38,20 +37,11 @@ pipeline {
 
     post {
         always {
-            // Clean up the .env file so it's not sitting in the workspace
-            bat 'del .env'
-        }
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
+            // Clean up the .env file after the build for security
+            bat 'if exist .env del .env'
         }
     }
 }
-
-
-
 
 
 
