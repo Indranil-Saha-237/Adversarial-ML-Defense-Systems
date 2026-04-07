@@ -40,6 +40,15 @@ pipeline {
             // Clean up the .env file after the build for security
             bat 'if exist .env del .env'
         }
+        
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed! Grabbing logs...'
+            // This will show you exactly why the app crashed
+            bat 'docker-compose logs' 
+        }
     }
 }
 

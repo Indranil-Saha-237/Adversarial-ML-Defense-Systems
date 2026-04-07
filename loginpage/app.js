@@ -48,7 +48,7 @@ app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/loginpage')
   .then(() => {
     console.log('MongoDB connected');
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0',() => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
   })
