@@ -30,7 +30,7 @@ pipeline {
                 echo 'Waiting 15 seconds for services to stabilize...'
                 // FIXED: Uses PowerShell to sleep because 'timeout' is not supported in Jenkins
                 bat 'powershell -Command "Start-Sleep -Seconds 15"'
-                bat 'curl -f http://localhost:3000/health || exit 1'
+                bat 'curl -v -f http://127.0.0.1:3000/health || exit 1'
             }
         }
     }
