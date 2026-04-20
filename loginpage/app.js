@@ -11,6 +11,9 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ──── Health check (for Docker / Jenkins) ────
+app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
+
 // ──── View engine ────
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
@@ -40,9 +43,6 @@ app.use(flash());
 
 // ──── Routes ────
 app.use('/', authRoutes);
-
-// ──── Health check (for Docker / Jenkins) ────
-app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 
 // ──── Connect to MongoDB & start server ────
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/loginpage')
