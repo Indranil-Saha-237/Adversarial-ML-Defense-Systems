@@ -446,7 +446,7 @@
   <script>
     async function initComparisonChart() {
       try {
-        const res = await fetch('http://127.0.0.1:5001/model/comparison');
+        const res = await fetch('/api/ml/comparison');
         const data = await res.json();
         const ctx = document.getElementById('defenseChart').getContext('2d');
         new Chart(ctx, {
@@ -514,7 +514,7 @@
         resultText.innerText = "Generating adversarial perturbations (HSJ)...";
 
         try {
-          const res = await fetch('http://127.0.0.1:5001/attack/simulate', { 
+          const res = await fetch('/api/ml/attack', { 
             method: 'POST' 
           });
           const data = await res.json();

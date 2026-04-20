@@ -110,4 +110,30 @@ router.get('/logout', (req, res, next) => {
   });
 });
 
+// ──── ML Proxy Bridges (For ngrok visibility) ────
+
+// Proxy for Chart Data
+router.get('/api/ml/comparison', async (req, res) => {
+    try {
+        const response = await
+axios.get('http://ml-engine:5001/model/comparison');
+        res.json(response.data);
+    } catch (err) {
+       console.error('ML Bridge Error (Comparison):', err.message);
+        res.status(503).json({ error: 'ML Engine Offline' });
+    }
+});
+// Proxy for Attack Simulation
+router.post('/api/ml/attack', async (req, res) => {
+    try {
+        const response = await
+axios.post('http://ml-engine:5001/attack/simulate');
+        res.json(response.data);
+    } catch (err) {
+        console.error('ML Bridge Error (Attack):', err.message);
+        res.status(503).json({ error: 'Attack Engine Offline' });
+    }
+});
+
+
 module.exports = router;
