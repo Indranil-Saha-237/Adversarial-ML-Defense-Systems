@@ -528,7 +528,7 @@
               </div>
             `;
           } else {
-            resultText.innerText = "Error: " + data.message;
+            resultText.innerText = "Error: " + (data.message || data.error || "Unknown error during attack simulation.");
           }
         } catch (err) {
           resultText.innerText = "Error: ML Engine Offline";
