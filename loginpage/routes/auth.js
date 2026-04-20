@@ -127,7 +127,7 @@ axios.get('http://ml-engine:5001/model/comparison');
 router.post('/api/ml/attack', async (req, res) => {
     try {
         const response = await
-axios.post('http://ml-engine:5001/attack/simulate');
+axios.post('http://ml-engine:5001/attack/simulate', {}, { timeout: 60000 });
         res.json(response.data);
     } catch (err) {
         console.error('ML Bridge Error (Attack):', err.message);
