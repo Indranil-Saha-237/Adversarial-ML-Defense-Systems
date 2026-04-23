@@ -59,7 +59,8 @@ def get_comparison():
 @app.route('/attack/simulate', methods=['POST'])
 def simulate_live_attack():
     #1. Load a small slice of data (100 samples)
-    try: 
+    try:
+        print(f"Checking files... Data exists: {os.path.exists('data/X_test.npy')}, Models exist:{os.path.exists(BASELINE_PATH)}") 
         X_full = np.load("data/X_test.npy")
         y_full = np.load("data/y_test.npy")
 
