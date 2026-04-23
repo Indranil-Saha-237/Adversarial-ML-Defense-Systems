@@ -29,7 +29,7 @@ router.get('/signup', ensureGuest, (req, res) => {
 
 router.get('/dashboard', ensureAuth, async (req, res) => {
   try {
-    const mlRes = await axios.get(`${ML_URL}/model/metadata`);
+    const mlRes = await axios.get(`${ML_URL}/model/metadata`, { timeout: 5000 });
     const mlData = mlRes.data;
 
     //Reder Dashboard with ML metadata and User Data
@@ -127,7 +127,7 @@ router.get('/api/ml/comparison', async (req, res) => {
 router.post('/api/ml/attack', async (req, res) => {
     try {
         // const response = await axios.post('http://ml-engine:5001/attack/simulate', {}, { timeout: 60000 });
-        const response = await axios.post(`${ML_URL}/attack/simulate`, {}, { timeout: 60000 });
+        const response = await axios.post(`${ML_URL}/attack/simulate`, {}, { timeout: 90000 });
         res.json(response.data);
     } catch (err) {
         console.error('ML Bridge Error (Attack):', err.message);
