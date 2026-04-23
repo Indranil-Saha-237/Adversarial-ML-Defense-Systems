@@ -3,4 +3,6 @@ __pycache__/
 *.npy
 data/
 *.pkl
+.env
+
 
