@@ -115,8 +115,8 @@ router.get('/logout', (req, res, next) => {
 // Proxy for Chart Data
 router.get('/api/ml/comparison', async (req, res) => {
     try {
-        const response = await
-axios.get('http://ml-engine:5001/model/comparison');
+        // const response = await axios.get('http://ml-engine:5001/model/comparison');
+        const response = await axios.get(`${ML_URL}/model/comparison`);
         res.json(response.data);
     } catch (err) {
        console.error('ML Bridge Error (Comparison):', err.message);
@@ -126,8 +126,8 @@ axios.get('http://ml-engine:5001/model/comparison');
 // Proxy for Attack Simulation
 router.post('/api/ml/attack', async (req, res) => {
     try {
-        const response = await
-axios.post('http://ml-engine:5001/attack/simulate', {}, { timeout: 60000 });
+        // const response = await axios.post('http://ml-engine:5001/attack/simulate', {}, { timeout: 60000 });
+        const response = await axios.post(`${ML_URL}/attack/simulate`, {}, { timeout: 60000 });
         res.json(response.data);
     } catch (err) {
         console.error('ML Bridge Error (Attack):', err.message);
