@@ -45,16 +45,18 @@ app.use(flash());
 app.use('/', authRoutes);
 
 // ──── Connect to MongoDB & start server ────
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/loginpage')
-  .then(() => {
-    console.log('MongoDB connected');
-    app.listen(PORT, '0.0.0.0',() => {
-      console.log(`Server running on http://localhost:${PORT}`);
+
+app.listen(PORT, '0.0.0.0',() => {
+    console.log(`Server running on http://localhost:${PORT}`);
     });
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/loginpage')
+  .then(()=>{
+    console.log('MongoDB connected');
   })
   .catch(err => {
     console.error('MongoDB connection error:', err.message);
-    process.exit(1);
+    
   });
 
 module.exports = app;
+

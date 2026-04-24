@@ -38,8 +38,8 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-your-google-client-secret}
       - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL:-http://localhost:3000/auth/google/callback}
       - ML_API_URL=http://ml-engine:5001
-    volumes:
-      - ./loginpage:/app
+    # volumes:
+    #   - ./loginpage:/app
 
 volumes:
       mongo-data:
